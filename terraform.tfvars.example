@@ -1,0 +1,15 @@
+# cp terraform.tfvars.example terraform.tfvars
+
+# From your AWS Marketplace subscription (Launch / usage instructions):
+image = "709825985650.dkr.ecr.us-east-1.amazonaws.com/<seller>/cloud-cost-copilot:1.0.0"
+
+region           = "us-east-1"
+bedrock_model_id = "us.anthropic.claude-opus-5-5"
+
+# Optional: run in existing private subnets (with a NAT gateway or VPC endpoints) instead of a new VPC.
+# vpc_id           = "vpc-0123456789abcdef0"
+# subnet_ids       = ["subnet-0123456789abcdef0"]
+# assign_public_ip = false
+
+# Optional: API bearer token stored in SSM Parameter Store (SecureString).
+# api_token_ssm_parameter_arn = "arn:aws:ssm:us-east-1:<account-id>:parameter/cloud-cost-copilot/api-token"

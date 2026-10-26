@@ -1,0 +1,42 @@
+name: release
+
+# Push a tag vX.Y.Z to publish a GitHub release with the zip and its SHA-256 checksum.
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with: { terraform_version: "1.16.5" }
+      - run: terraform fmt -check -recursive
+      - run: terraform init -backend=false -input=false && terraform validate && rm -rf .terraform .terraform.lock.hcl
+
+      - name: Build zip
+        id: zip
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          name="cloud-cost-copilot-ecs-fargate-$version"
+          mkdir -p "dist/$name"
+          cp *.tf copilot-policy.json terraform.tfvars.example README.md CHANGELOG.md LICENSE "dist/$name/"
+          (cd dist && zip -X -r "$name.zip" "$name" && sha256sum "$name.zip" > "$name.zip.sha256")
+          cat "dist/$name.zip.sha256"
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Release notes
+        run: awk -v v="## ${{ steps.zip.outputs.version }}" '$0==v{f=1;next} /^## /{f=0} f' CHANGELOG.md > notes.md
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            "dist/${{ steps.zip.outputs.name }}.zip" "dist/${{ steps.zip.outputs.name }}.zip.sha256" \
+            --title "$GITHUB_REF_NAME" --notes-file notes.md
