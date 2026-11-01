@@ -16,15 +16,16 @@ resource "aws_cloudwatch_log_group" "this" {
 }
 
 locals {
-  environment = concat(
-    [
-      { name = "AWS_REGION", value = var.region },
-      { name = "COPILOT_LLM_PROVIDER", value = "bedrock" },
-      { name = "COPILOT_BEDROCK_MODEL_ID", value = var.bedrock_model_id },
-      { name = "COPILOT_LOG_LEVEL", value = var.log_level },
-    ],
-    var.bedrock_region != "" ? [{ name = "COPILOT_BEDROCK_REGION", value = var.bedrock_region }] : [],
-  )
+  environment = [for k, v in merge(
+    {
+      AWS_REGION               = var.region
+      COPILOT_LLM_PROVIDER     = "bedrock"
+      COPILOT_BEDROCK_MODEL_ID = var.bedrock_model_id
+      COPILOT_LOG_LEVEL        = var.log_level
+    },
+    var.bedrock_region != "" ? { COPILOT_BEDROCK_REGION = var.bedrock_region } : {},
+    var.environment,
+  ) : { name = k, value = v }]
   secrets = var.api_token_ssm_parameter_arn != "" ? [{ name = "COPILOT_API_TOKEN", valueFrom = var.api_token_ssm_parameter_arn }] : []
 }
 

@@ -65,6 +65,7 @@ State is kept locally. For a team, add an S3 backend in `versions.tf`.
 | `enable_execute_command` | `true` | Port-forward access. ECS Exec needs a writable root filesystem, so `false` makes it read-only; then reach the task through `ingress_cidrs` (for example your VPN range) |
 | `ingress_cidrs` | none | Open port 8080 (plain HTTP) to these networks. Use private ranges and an API token. |
 | `cpu_architecture` | `X86_64` | `ARM64` is about 20% cheaper |
+| `environment` | none | Extra `COPILOT_*` settings for the container, e.g. `{ COPILOT_COST_CACHE_TTL_SECONDS = "7200" }` |
 
 ## Costs (us-east-1, always on)
 

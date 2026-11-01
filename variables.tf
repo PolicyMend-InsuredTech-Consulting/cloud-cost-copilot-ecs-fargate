@@ -76,6 +76,16 @@ variable "log_level" {
   default = "INFO"
 }
 
+variable "environment" {
+  description = "Extra COPILOT_* environment variables for the container, e.g. { COPILOT_COST_CACHE_TTL_SECONDS = \"7200\" }. They override the module's own values."
+  type        = map(string)
+  default     = {}
+  validation {
+    condition     = alltrue([for k in keys(var.environment) : can(regex("^COPILOT_[A-Z0-9_]+$", k))])
+    error_message = "environment keys must be COPILOT_* settings."
+  }
+}
+
 variable "log_retention_days" {
   type    = number
   default = 30
