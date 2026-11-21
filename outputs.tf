@@ -20,7 +20,7 @@ output "connect" {
     TASK=$(aws ecs list-tasks --region ${var.region} --cluster ${aws_ecs_cluster.this.name} --service-name ${aws_ecs_service.this.name} --query 'taskArns[0]' --output text | awk -F/ '{print $NF}')
     RUNTIME=$(aws ecs describe-tasks --region ${var.region} --cluster ${aws_ecs_cluster.this.name} --tasks $TASK --query 'tasks[0].containers[0].runtimeId' --output text)
     aws ssm start-session --region ${var.region} --target ecs:${aws_ecs_cluster.this.name}_$${TASK}_$${RUNTIME} \
-      --document-name AWS-StartPortForwardingSessionToRemoteHost \
-      --parameters '{"host":["localhost"],"portNumber":["8080"],"localPortNumber":["8080"]}'
+      --document-name AWS-StartPortForwardingSession \
+      --parameters '{"portNumber":["8080"],"localPortNumber":["8080"]}'
   EOT
 }
