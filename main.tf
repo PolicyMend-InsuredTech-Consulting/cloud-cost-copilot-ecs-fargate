@@ -8,7 +8,8 @@ resource "aws_ecs_cluster" "this" {
   }
 }
 
-# Logs hold operational events only (no questions, answers or cost figures).
+# Copilot logs operational events only (no questions, answers or cost figures). Interactive ECS Exec sessions
+# are also recorded here (see aws_iam_role_policy.exec); port-forward sessions are not.
 #trivy:ignore:AVD-AWS-0017 the AWS-managed key is enough for operational logs; a customer-managed key adds $1/month
 resource "aws_cloudwatch_log_group" "this" {
   name              = "/ecs/${var.name}"

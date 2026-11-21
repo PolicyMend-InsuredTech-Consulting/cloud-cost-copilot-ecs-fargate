@@ -23,7 +23,10 @@ resource "aws_iam_role_policy" "copilot" {
   policy = file("${path.module}/copilot-policy.json")
 }
 
-# Session Manager channels for ECS Exec (port forwarding to the UI). They have no resource-level scoping.
+# ECS Exec: Session Manager channels (port forwarding to the UI), which have no resource-level scoping, and
+# session logging. ECS Exec records interactive sessions in the task's log group (port forwards aren't
+# recorded); without these logs actions the agent logs AccessDenied on logs:CreateLogStream.
+# logs:DescribeLogGroups also has no resource-level scoping.
 #trivy:ignore:AVD-AWS-0057
 resource "aws_iam_role_policy" "exec" {
   count = var.enable_execute_command ? 1 : 0
@@ -31,14 +34,29 @@ resource "aws_iam_role_policy" "exec" {
   role  = aws_iam_role.task.id
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [{
-      Effect = "Allow"
-      Action = [
-        "ssmmessages:CreateControlChannel", "ssmmessages:CreateDataChannel",
-        "ssmmessages:OpenControlChannel", "ssmmessages:OpenDataChannel",
-      ]
-      Resource = "*"
-    }]
+    Statement = [
+      {
+        Sid    = "SessionManagerChannels"
+        Effect = "Allow"
+        Action = [
+          "ssmmessages:CreateControlChannel", "ssmmessages:CreateDataChannel",
+          "ssmmessages:OpenControlChannel", "ssmmessages:OpenDataChannel",
+        ]
+        Resource = "*"
+      },
+      {
+        Sid      = "SessionLogGroupLookup"
+        Effect   = "Allow"
+        Action   = "logs:DescribeLogGroups"
+        Resource = "*"
+      },
+      {
+        Sid      = "SessionLogStreams"
+        Effect   = "Allow"
+        Action   = ["logs:CreateLogStream", "logs:DescribeLogStreams", "logs:PutLogEvents"]
+        Resource = "${aws_cloudwatch_log_group.this.arn}:*"
+      },
+    ]
   })
 }
 

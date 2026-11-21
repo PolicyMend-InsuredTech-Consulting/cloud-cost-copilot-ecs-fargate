@@ -22,9 +22,9 @@ Check a downloaded zip: `sha256sum -c cloud-cost-copilot-ecs-fargate-1.0.0.zip.s
 | Resource | Notes |
 | --- | --- |
 | ECS cluster, task definition, service | One task, 0.25 vCPU / 1 GB by default |
-| IAM task role | [copilot-policy.json](copilot-policy.json): read-only Cost Explorer, Bedrock invoke, AWS Marketplace license check. No write access to your resources. Plus Session Manager channels for ECS Exec. |
+| IAM task role | [copilot-policy.json](copilot-policy.json): read-only Cost Explorer, Bedrock invoke, AWS Marketplace license check. No write access to your resources. Plus Session Manager channels for ECS Exec and permission to record ECS Exec sessions in the log group below. |
 | IAM execution role | Pulls the image from the AWS Marketplace registry, writes logs, reads the optional API token |
-| CloudWatch log group | `/ecs/cloud-cost-copilot`, 30 days. Operational events only, no questions, answers or cost figures. |
+| CloudWatch log group | `/ecs/cloud-cost-copilot`, 30 days. Copilot writes operational events only, no questions, answers or cost figures. Interactive ECS Exec sessions (`aws ecs execute-command`) are also recorded here; port-forward sessions are not. |
 | Security group | Outbound HTTPS only; inbound 8080 only from `ingress_cidrs` (none by default) |
 | VPC, public subnet, internet gateway | Only when you don't pass `subnet_ids`. No NAT gateway. |
 
