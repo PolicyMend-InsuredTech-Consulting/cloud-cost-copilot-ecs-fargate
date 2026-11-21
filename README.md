@@ -33,6 +33,11 @@ Check a downloaded zip: `sha256sum -c cloud-cost-copilot-ecs-fargate-1.0.0.zip.s
 - An active Cloud Cost Copilot subscription in AWS Marketplace, in the same account.
 - AWS Cost Explorer enabled. Run Copilot in the **management (payer) account** to see every linked account's costs.
 - Amazon Bedrock access to the model in `bedrock_model_id` (Anthropic models need a one-time use-case form in the Bedrock console).
+  If your AWS invoices come from *Amazon Web Services India Private Limited* (AISPL; shown on the **Bills** page of
+  the Billing console), your account may not be able to subscribe to Anthropic models: when we tested this, the
+  subscription was cancelled automatically and Bedrock returned *"... is not available for this account"*. Set
+  `bedrock_model_id = "us.amazon.nova-2-lite-v1:0"` (Amazon Nova, no Marketplace subscription needed) or ask AWS
+  Support to enable Anthropic models.
 - Terraform 1.5 or later, the AWS CLI v2 and the [Session Manager plugin](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html).
 
 ## Deploy
@@ -60,7 +65,7 @@ State is kept locally. For a team, add an S3 backend in `versions.tf`.
 | Variable | Default | Use |
 | --- | --- | --- |
 | `subnet_ids`, `vpc_id` | new VPC | Run in your own subnets. With private subnets, set `assign_public_ip = false` and provide a NAT gateway or VPC endpoints for ECR, CloudWatch Logs, SSM, Bedrock, Cost Explorer and License Manager. |
-| `bedrock_model_id` | `us.anthropic.claude-opus-5-5` | Inference profile ID; `eu.`, `apac.` or `global.` outside the US |
+| `bedrock_model_id` | `us.anthropic.claude-opus-5-5` | Inference profile ID; `eu.`, `apac.` or `global.` outside the US. Without Anthropic access, use Amazon Nova: `us.amazon.nova-2-lite-v1:0` (no Marketplace subscription needed) |
 | `api_token_ssm_parameter_arn` | none | Require `Authorization: Bearer <token>` on the API. Create it with `aws ssm put-parameter --type SecureString --name /cloud-cost-copilot/api-token --value $(openssl rand -hex 24)` |
 | `enable_execute_command` | `true` | Port-forward access. ECS Exec needs a writable root filesystem, so `false` makes it read-only; then reach the task through `ingress_cidrs` (for example your VPN range) |
 | `ingress_cidrs` | none | Open port 8080 (plain HTTP) to these networks. Use private ranges and an API token. |

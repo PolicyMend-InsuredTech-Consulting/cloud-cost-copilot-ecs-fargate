@@ -5,6 +5,8 @@ image = "709825985650.dkr.ecr.us-east-1.amazonaws.com/<seller>/cloud-cost-copilo
 
 region           = "us-east-1"
 bedrock_model_id = "us.anthropic.claude-opus-5-5"
+# No Anthropic access (for example, accounts billed by AWS India)? Use Amazon Nova instead:
+# bedrock_model_id = "us.amazon.nova-2-lite-v1:0"
 
 # Optional: run in existing private subnets (with a NAT gateway or VPC endpoints) instead of a new VPC.
 # vpc_id           = "vpc-0123456789abcdef0"

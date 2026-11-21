@@ -11,6 +11,9 @@ so the 1.0.0 tunnel closed on the first request.
 Fixed: the task role can now record interactive ECS Exec sessions in the task's log group. In 1.0.0 the agent
 logged `AccessDenied` on `logs:CreateLogStream` for every `aws ecs execute-command` session.
 
+Docs: Amazon Nova (`us.amazon.nova-2-lite-v1:0`) as the model for accounts without Anthropic access, with a note for
+accounts billed by AWS India.
+
 ## 1.0.0
 
 First release: Cloud Cost Copilot 1.0 as a single AWS Fargate task, with IAM roles, CloudWatch logs, an optional
